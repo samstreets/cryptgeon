@@ -24,6 +24,10 @@
 	function reset() {
 		window.location.reload()
 	}
+
+	let mailtoHref = $derived(
+		`mailto:support@emerald-group.co.uk?subject=${encodeURIComponent('Shared secure note')}&body=${encodeURIComponent(url)}`
+	)
 </script>
 
 <TextInput
@@ -35,8 +39,14 @@
 	data-testid="share-link"
 />
 
-<div>
+<div class="qr">
 	<Canvas value={url} />
+</div>
+
+<div class="actions">
+	<a class="mailto-button" href={mailtoHref}>
+		✉ send via email
+	</a>
 </div>
 
 {#if $status?.theme_new_note_notice}
@@ -48,9 +58,31 @@
 <Button onclick={reset}>{$t('home.new_note')}</Button>
 
 <style>
-	div {
+	.qr {
 		width: min(12rem, 100%);
 		margin-top: 1rem;
 		margin-bottom: 1rem;
+	}
+
+	.actions {
+		display: flex;
+		gap: 0.5rem;
+		margin-bottom: 1rem;
+	}
+
+	.mailto-button {
+		display: inline-block;
+		padding: 0.5rem 1rem;
+		border: 2px solid var(--ui-clr-primary);
+		color: var(--ui-clr-primary);
+		text-decoration: none;
+		font-size: 0.9rem;
+		cursor: pointer;
+		transition: background-color 0.15s, color 0.15s;
+	}
+
+	.mailto-button:hover {
+		background-color: var(--ui-clr-primary);
+		color: var(--ui-bg-0, #fff);
 	}
 </style>
