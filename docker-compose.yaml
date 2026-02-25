@@ -17,6 +17,7 @@ services:
     environment:
       # Size limit for a single note.
       SIZE_LIMIT: 80 MiB
+      VERBOSITY: info
     ports:
       - 8001:8000
 
