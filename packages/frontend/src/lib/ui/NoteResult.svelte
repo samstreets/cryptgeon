@@ -10,7 +10,6 @@
 	import { status } from '$lib/stores/status'
 	import Button from '$lib/ui/Button.svelte'
 	import TextInput from '$lib/ui/TextInput.svelte'
-	import Canvas from './Canvas.svelte'
 
 	interface Props {
 		result: NoteResult
@@ -39,13 +38,9 @@
 	data-testid="share-link"
 />
 
-<div class="qr">
-	<Canvas value={url} />
-</div>
-
 <div class="actions">
 	<a class="mailto-button" href={mailtoHref}>
-		✉ send via email
+		✉ Send via email
 	</a>
 </div>
 
@@ -58,16 +53,11 @@
 <Button onclick={reset}>{$t('home.new_note')}</Button>
 
 <style>
-	.qr {
-		width: min(12rem, 100%);
-		margin-top: 1rem;
-		margin-bottom: 1rem;
-	}
-
 	.actions {
 		display: flex;
 		gap: 0.5rem;
 		margin-bottom: 1rem;
+		margin-top: 1rem;
 	}
 
 	.mailto-button {
