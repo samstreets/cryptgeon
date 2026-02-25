@@ -1,12 +1,13 @@
 use std::{collections::HashMap, sync::Arc};
 
 use axum::{
-    extract::{DefaultBodyLimit, Request},
+    extract::{ConnectInfo, DefaultBodyLimit, Request},
     routing::{delete, get, post},
     Router, ServiceExt,
 };
 use dotenv::dotenv;
 use lock::SharedState;
+use std::net::SocketAddr;
 use tokio::sync::Mutex;
 use tower::Layer;
 use tower_http::{
@@ -14,6 +15,8 @@ use tower_http::{
     normalize_path::NormalizePathLayer,
     services::{ServeDir, ServeFile},
 };
+use tracing::info;
+use tracing_subscriber::{EnvFilter, fmt};
 
 #[macro_use]
 extern crate lazy_static;
@@ -30,12 +33,21 @@ mod store;
 async fn main() {
     dotenv().ok();
 
+    // Initialise structured logging. Level is controlled by the VERBOSITY env var
+    // (defaults to "warn"). Set VERBOSITY=info to see audit events.
+    let filter = EnvFilter::new(format!("cryptgeon={},warn", *config::VERBOSITY));
+    fmt()
+        .with_env_filter(filter)
+        .with_target(false)
+        .compact()
+        .init();
+
     let shared_state = SharedState {
         locks: Arc::new(Mutex::new(HashMap::new())),
     };
 
     if !store::can_reach_redis() {
-        println!("cannot reach redis");
+        tracing::error!("cannot reach redis");
         panic!("cannot reach redis");
     }
 
@@ -73,8 +85,11 @@ async fn main() {
     let listener = tokio::net::TcpListener::bind(config::LISTEN_ADDR.to_string())
         .await
         .unwrap();
-    println!("listening on {}", listener.local_addr().unwrap());
-    axum::serve(listener, ServiceExt::<Request>::into_make_service(app))
-        .await
-        .unwrap();
+    info!(addr = %listener.local_addr().unwrap(), "server listening");
+    axum::serve(
+        listener,
+        ServiceExt::<Request>::into_make_service_with_connect_info::<SocketAddr>(app),
+    )
+    .await
+    .unwrap();
 }
