@@ -1,12 +1,13 @@
 use axum::{
-    extract::Path,
+    extract::{ConnectInfo, Path},
     http::StatusCode,
     response::{IntoResponse, Response},
     Json,
 };
 use serde::{Deserialize, Serialize};
-use std::{sync::Arc, time::SystemTime};
+use std::{net::SocketAddr, sync::Arc, time::SystemTime};
 use tokio::sync::Mutex;
+use tracing::info;
 
 use crate::note::{generate_id, Note, NoteInfo};
 use crate::store;
@@ -26,12 +27,21 @@ pub struct OneNoteParams {
     id: String,
 }
 
-pub async fn preview(Path(OneNoteParams { id }): Path<OneNoteParams>) -> Response {
+pub async fn preview(
+    ConnectInfo(addr): ConnectInfo<SocketAddr>,
+    Path(OneNoteParams { id }): Path<OneNoteParams>,
+) -> Response {
     let note = store::get(&id);
 
     match note {
-        Ok(Some(n)) => (StatusCode::OK, Json(NoteInfo { meta: n.meta })).into_response(),
-        Ok(None) => (StatusCode::NOT_FOUND).into_response(),
+        Ok(Some(n)) => {
+            info!(action = "preview", note_id = %id, client_ip = %addr.ip(), "note preview requested");
+            (StatusCode::OK, Json(NoteInfo { meta: n.meta })).into_response()
+        }
+        Ok(None) => {
+            info!(action = "preview_not_found", note_id = %id, client_ip = %addr.ip(), "note preview — not found or already expired");
+            (StatusCode::NOT_FOUND).into_response()
+        }
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
     }
 }
@@ -41,10 +51,12 @@ struct CreateResponse {
     id: String,
 }
 
-pub async fn create(Json(mut n): Json<Note>) -> Response {
-    // let mut n = note.into_inner();
+pub async fn create(
+    ConnectInfo(addr): ConnectInfo<SocketAddr>,
+    Json(mut n): Json<Note>,
+) -> Response {
     let id = generate_id();
-    // let bad_req = HttpResponse::BadRequest().finish();
+
     if n.views == None && n.expiration == None {
         return (
             StatusCode::BAD_REQUEST,
@@ -75,13 +87,31 @@ pub async fn create(Json(mut n): Json<Note>) -> Response {
         }
         _ => {}
     }
+
+    let note_type = n.meta.parse::<serde_json::Value>()
+        .ok()
+        .and_then(|v| v.get("type").and_then(|t| t.as_str()).map(String::from))
+        .unwrap_or_else(|| "unknown".to_string());
+
     match store::set(&id.clone(), &n.clone()) {
-        Ok(_) => (StatusCode::OK, Json(CreateResponse { id })).into_response(),
+        Ok(_) => {
+            info!(
+                action = "create",
+                note_id = %id,
+                client_ip = %addr.ip(),
+                note_type = %note_type,
+                views = ?n.views,
+                expiration = ?n.expiration,
+                "note created"
+            );
+            (StatusCode::OK, Json(CreateResponse { id })).into_response()
+        }
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
     }
 }
 
 pub async fn delete(
+    ConnectInfo(addr): ConnectInfo<SocketAddr>,
     Path(OneNoteParams { id }): Path<OneNoteParams>,
     state: axum::extract::State<SharedState>,
 ) -> Response {
@@ -96,7 +126,10 @@ pub async fn delete(
     let note = store::get(&id);
     match note {
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
-        Ok(None) => (StatusCode::NOT_FOUND).into_response(),
+        Ok(None) => {
+            info!(action = "read_not_found", note_id = %id, client_ip = %addr.ip(), "note read — not found or already deleted");
+            (StatusCode::NOT_FOUND).into_response()
+        }
         Ok(Some(note)) => {
             let mut changed = note.clone();
             if changed.views == None && changed.expiration == None {
@@ -112,7 +145,9 @@ pub async fn delete(
                                 return (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
                                     .into_response();
                             }
-                            _ => {}
+                            _ => {
+                                info!(action = "read_and_destroy", note_id = %id, client_ip = %addr.ip(), remaining_views = 0, "note read and destroyed (view limit reached)");
+                            }
                         }
                     } else {
                         match store::set(&id, &changed.clone()) {
@@ -120,7 +155,9 @@ pub async fn delete(
                                 return (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
                                     .into_response();
                             }
-                            _ => {}
+                            _ => {
+                                info!(action = "read", note_id = %id, client_ip = %addr.ip(), remaining_views = v - 1, "note read");
+                            }
                         }
                     }
                 }
@@ -132,7 +169,10 @@ pub async fn delete(
                 Some(e) => {
                     if e < n {
                         match store::del(&id.clone()) {
-                            Ok(_) => return (StatusCode::BAD_REQUEST).into_response(),
+                            Ok(_) => {
+                                info!(action = "read_expired", note_id = %id, client_ip = %addr.ip(), "note read — expired and destroyed");
+                                return (StatusCode::BAD_REQUEST).into_response();
+                            }
                             Err(e) => {
                                 return (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
                                     .into_response()
