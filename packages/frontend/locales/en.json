@@ -1,58 +1,58 @@
 {
 	"common": {
-		"note": "note",
-		"file": "file",
-		"advanced": "advanced",
-		"create": "create",
-		"loading": "loading",
-		"mode": "mode",
+		"note": "Note",
+		"file": "File",
+		"advanced": "Advanced",
+		"create": "Create",
+		"loading": "Loading",
+		"mode": "Mode",
 		"views": "{n, plural, =0 {views} =1 {1 view} other {# views}}",
 		"minutes": "{n, plural, =0 {minutes} =1 {1 minute} other {# minutes}}",
-		"max": "max",
-		"share_link": "share link",
-		"copy_clipboard": "copy to clipboard",
-		"copied_to_clipboard": "copied to clipboard",
-		"encrypting": "encrypting",
-		"decrypting": "decrypting",
-		"uploading": "uploading",
-		"downloading": "downloading",
-		"qr_code": "qr code",
-		"password": "password"
+		"max": "Max",
+		"share_link": "Share link",
+		"copy_clipboard": "Copy to clipboard",
+		"copied_to_clipboard": "Copied to clipboard",
+		"encrypting": "Encrypting",
+		"decrypting": "Decrypting",
+		"uploading": "Uploading",
+		"downloading": "Downloading",
+		"qr_code": "QR code",
+		"password": "Password"
 	},
 	"home": {
 		"intro": "Easily send <i>fully encrypted</i>, secure notes or files with one click. Just create a note and share the link.",
-		"explanation": "the note will expire and be destroyed after {type}.",
-		"new_note": "new note",
-		"new_note_notice": "<b>availability:</b><br />the note is not guaranteed to be stored as everything is kept in ram, if it fills up the oldest notes will be removed.<br />(you probably will be fine, just be warned.)",
+		"explanation": "The note will expire and be destroyed after {type}.",
+		"new_note": "New note",
+		"new_note_notice": "<b>Availability:</b><br />The note is not guaranteed to be stored as everything is kept in RAM. If it fills up, the oldest notes will be removed.<br />(You will probably be fine, just be warned.)",
 		"errors": {
-			"note_to_big": "could not create note. note is too big",
-			"note_error": "could not create note. please try again.",
-			"max": "max: {n}",
-			"empty_content": "note is empty."
+			"note_to_big": "Could not create note. Note is too big.",
+			"note_error": "Could not create note. Please try again.",
+			"max": "Max: {n}",
+			"empty_content": "Note is empty."
 		},
 		"messages": {
-			"note_created": "note created."
+			"note_created": "Note created."
 		},
 		"advanced": {
 			"explanation": "By default, a securely generated password is used for each note. You can however also choose your own password, which is not included in the link.",
-			"custom_password": "custom password"
+			"custom_password": "Custom password"
 		}
 	},
 	"show": {
 		"errors": {
-			"not_found": "note was not found or was already deleted.",
-			"decryption_failed": "wrong password. could not decipher. probably a broken link. note was destroyed.",
-			"unsupported_type": "unsupported note type."
+			"not_found": "Note was not found or was already deleted.",
+			"decryption_failed": "Wrong password. Could not decipher. Probably a broken link. Note was destroyed.",
+			"unsupported_type": "Unsupported note type."
 		},
-		"explanation": "click below to show and delete the note if the counter has reached its limit",
-		"show_note": "show note",
-		"warning_will_not_see_again": "you will <b>not</b> get the chance to see the note again.",
-		"download_all": "download all",
-		"links_found": "links found inside the note:"
+		"explanation": "Click below to show and delete the note if the counter has reached its limit.",
+		"show_note": "Show note",
+		"warning_will_not_see_again": "You will <b>not</b> get the chance to see the note again.",
+		"download_all": "Download all",
+		"links_found": "Links found inside the note:"
 	},
 	"file_upload": {
-		"selected_files": "Selected Files",
-		"no_files_selected": "No Files Selected",
+		"selected_files": "Selected files",
+		"no_files_selected": "No files selected",
 		"clear": "Reset"
 	}
 }
