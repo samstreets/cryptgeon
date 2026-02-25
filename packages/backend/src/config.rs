@@ -15,7 +15,7 @@ lazy_static! {
 // CONFIG
 lazy_static! {
 pub static ref LIMIT: usize =
-  Byte::from_str(std::env::var("SIZE_LIMIT").unwrap_or("1 KiB".to_string()))
+  Byte::from_str(std::env::var("SIZE_LIMIT").unwrap_or("50 MiB".to_string()))
     .unwrap()
     .get_bytes() as usize;
 pub static ref MAX_VIEWS: u32 = std::env::var("MAX_VIEWS")
@@ -51,7 +51,7 @@ pub static ref IMPRINT_HTML: String = std::env::var("IMPRINT_HTML")
 // THEME
 lazy_static! {
     pub static ref THEME_IMAGE: String = std::env::var("THEME_IMAGE")
-        .unwrap_or("".to_string())
+        .unwrap_or("https://emerald-group.co.uk/wp-content/uploads/2022/10/Emeralds-Group-Logo-Lighter-text.svg".to_string())
         .parse()
         .unwrap();
     pub static ref THEME_TEXT: String = std::env::var("THEME_TEXT")
@@ -59,11 +59,11 @@ lazy_static! {
         .parse()
         .unwrap();
     pub static ref THEME_PAGE_TITLE: String = std::env::var("THEME_PAGE_TITLE")
-        .unwrap_or("".to_string())
+        .unwrap_or("Emerald Password Share".to_string())
         .parse()
         .unwrap();
     pub static ref THEME_FAVICON: String = std::env::var("THEME_FAVICON")
-        .unwrap_or("".to_string())
+        .unwrap_or("https://www.emerald-group.co.uk/wp-content/uploads/2022/08/cropped-emerald-favicon-32x32.png".to_string())
         .parse()
         .unwrap();
     pub static ref THEME_NEW_NOTE_NOTICE: bool = std::env::var("THEME_NEW_NOTE_NOTICE")
